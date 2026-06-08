@@ -347,7 +347,7 @@ addToFileIfMissing "$userBashProfileFile" "^(export)? *PATH=.*(\\\$MonkeyDevPath
 iosSdkPlatformPath=`getSdkProperty iphoneos PlatformPath`
 macosSdkPlatformPath=`getSdkProperty macosx PlatformPath`
 
-specificationFile=$(cd $iosSdkPlatformPath/../../.. && pwd)/PlugIns/IDEiOSSupportCore.ideplugin/Contents/Resources/Embedded-Device.xcspec
+specificationFile=$(find $iosSdkPlatformPath/../../.. -name "Embedded-Device.xcspec" | head -n 1)
 
 requireFile "$specificationFile" false
 
@@ -358,8 +358,8 @@ hasPackageTypeForCommandLineTool=`doesFileContain "$specificationFile" 'com.appl
 hasProductTypeForCommandLineTool=`doesFileContain "$specificationFile" 'com.apple.product-type.tool'`
 
 macosxSDKSpecificationsPath=$macosSdkPlatformPath/Developer/Library/Xcode/Specifications
-packageTypesForMacOSXPath="$macosxSDKSpecificationsPath/MacOSX Package Types.xcspec"
-productTypesForMacOSXPath="$macosxSDKSpecificationsPath/MacOSX Product Types.xcspec"
+packageTypesForMacOSXPath=$(find $macosxSDKSpecificationsPath -name "MacOSX Package Types.xcspec" | head -n 1)
+productTypesForMacOSXPath=$(find $macosxSDKSpecificationsPath -name "MacOSX Product Types.xcspec" | head -n 1)
 
 requireFile "$packageTypesForMacOSXPath" false
 requireFile "$productTypesForMacOSXPath" false
