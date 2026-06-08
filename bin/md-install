@@ -345,7 +345,7 @@ addToFileIfMissing "$userBashProfileFile" "^(export)? *PATH=.*(\\\$MonkeyDevPath
 
 #支持iphoneos command line tools
 iosSdkPlatformPath=`getSdkProperty iphoneos PlatformPath`
-macosSdkPlatformPath="~/Documents/Contents/Developer/Platforms/MacOSX.platform"
+macosSdkPlatformPath="$userHome/Documents/Contents/Developer/Platforms/MacOSX.platform"
 
 iosSdkPlatformRoot="$(cd $iosSdkPlatformPath/../../.. && pwd)"
 
