@@ -347,7 +347,16 @@ addToFileIfMissing "$userBashProfileFile" "^(export)? *PATH=.*(\\\$MonkeyDevPath
 iosSdkPlatformPath=`getSdkProperty iphoneos PlatformPath`
 macosSdkPlatformPath=`getSdkProperty macosx PlatformPath`
 
-specificationFile=$(find $iosSdkPlatformPath/../../.. -name "Embedded-Device.xcspec" | head -n 1)
+iosSdkPlatformRoot="$(cd $iosSdkPlatformPath/../../.. && pwd)"
+
+# Collect all found specification files into an array (safe for spaces/newlines)
+specificationFiles=()
+while IFS= read -r -d $'\0' f; do
+	specificationFiles+=("$f")
+done < <(find "$iosSdkPlatformRoot" -name "Embedded-Device.xcspec" -print0)
+
+# Use the first found file as the primary specification file
+specificationFile="${specificationFiles[0]}"
 
 requireFile "$specificationFile" false
 
