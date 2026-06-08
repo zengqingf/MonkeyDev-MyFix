@@ -380,27 +380,37 @@ for i in "${!specificationFiles[@]}"; do
 	printf '%s\n' "$src" > "$dstDir/path.txt" || panic $? "Failed to write path.txt in $dstDir"
 done
 
-#backup
-requireBackup "$specificationFile"
-
-hasPackageTypeForCommandLineTool=`doesFileContain "$specificationFile" 'com.apple.package-type.mach-o-executable'`
-hasProductTypeForCommandLineTool=`doesFileContain "$specificationFile" 'com.apple.product-type.tool'`
+# Find all copied spec files under destRoot and process each one using original logic
+destSpecifications=()
+while IFS= read -r -d $'\0' f; do
+	destSpecifications+=("$f")
+done < <(find "$destRoot" -name "Embedded-Device.xcspec" -print0)
 
 macosxSDKSpecificationsPath=$macosSdkPlatformPath/Developer/Library/Xcode/Specifications
-packageTypesForMacOSXPath=$(find $macosxSDKSpecificationsPath -name "MacOSX Package Types.xcspec" | head -n 1)
-productTypesForMacOSXPath=$(find $macosxSDKSpecificationsPath -name "MacOSX Product Types.xcspec" | head -n 1)
+packageTypesForMacOSXPath=$(find "$macosxSDKSpecificationsPath" -name "MacOSX Package Types.xcspec" | head -n 1)
+productTypesForMacOSXPath=$(find "$macosxSDKSpecificationsPath" -name "MacOSX Product Types.xcspec" | head -n 1)
 
 requireFile "$packageTypesForMacOSXPath" false
 requireFile "$productTypesForMacOSXPath" false
 
-if [[ $hasPackageTypeForCommandLineTool != "true" ]]; then
-	machoDict=`readXcodeSpecificationById "$packageTypesForMacOSXPath" "com.apple.package-type.mach-o-executable"`
-	writeDictToSpecification "$specificationFile" "$machoDict"
-fi
+for j in "${!destSpecifications[@]}"; do
+	specificationFile="${destSpecifications[$j]}"
 
-if [[ $hasProductTypeForCommandLineTool != "true" ]]; then
-	toolDict=`readXcodeSpecificationById "$productTypesForMacOSXPath" "com.apple.product-type.tool"`
-	writeDictToSpecification "$specificationFile" "$toolDict"
-fi
+	requireFile "$specificationFile" false
+	requireBackup "$specificationFile"
+
+	hasPackageTypeForCommandLineTool=`doesFileContain "$specificationFile" 'com.apple.package-type.mach-o-executable'`
+	hasProductTypeForCommandLineTool=`doesFileContain "$specificationFile" 'com.apple.product-type.tool'`
+
+	if [[ $hasPackageTypeForCommandLineTool != "true" ]]; then
+		machoDict=`readXcodeSpecificationById "$packageTypesForMacOSXPath" "com.apple.package-type.mach-o-executable"`
+		writeDictToSpecification "$specificationFile" "$machoDict"
+	fi
+
+	if [[ $hasProductTypeForCommandLineTool != "true" ]]; then
+		toolDict=`readXcodeSpecificationById "$productTypesForMacOSXPath" "com.apple.product-type.tool"`
+		writeDictToSpecification "$specificationFile" "$toolDict"
+	fi
+done
 
 exit 0
