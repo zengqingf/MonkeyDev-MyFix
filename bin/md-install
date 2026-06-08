@@ -351,9 +351,12 @@ iosSdkPlatformRoot="$(cd $iosSdkPlatformPath/../../.. && pwd)"
 
 # Collect all found specification files into an array (safe for spaces/newlines)
 specificationFiles=()
+tempSpecFile=`getTempDir`/spec_list
+find "$iosSdkPlatformRoot" -name "Embedded-Device.xcspec" -print0 > "$tempSpecFile" || \
+	panic $? "Failed to find specification files"
 while IFS= read -r -d $'\0' f; do
 	specificationFiles+=("$f")
-done < <(find "$iosSdkPlatformRoot" -name "Embedded-Device.xcspec" -print0)
+done < "$tempSpecFile"
 
 # Create timestamped destination root under Documents
 timestamp=`date +%Y%m%d%H%M%S`
@@ -375,9 +378,12 @@ done
 
 # Find all copied spec files under destRoot and process each one using original logic
 destSpecifications=()
+tempDestSpecFile=`getTempDir`/dest_spec_list
+find "$destRoot" -name "Embedded-Device.xcspec" -print0 > "$tempDestSpecFile" || \
+	panic $? "Failed to find destination specification files"
 while IFS= read -r -d $'\0' f; do
 	destSpecifications+=("$f")
-done < <(find "$destRoot" -name "Embedded-Device.xcspec" -print0)
+done < "$tempDestSpecFile"
 
 macosxSDKSpecificationsPath=$macosSdkPlatformPath/Developer/Library/Xcode/Specifications
 packageTypesForMacOSXPath=$(find "$macosxSDKSpecificationsPath" -name "MacOSX Package Types.xcspec" | head -n 1)
