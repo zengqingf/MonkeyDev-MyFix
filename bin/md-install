@@ -355,13 +355,6 @@ while IFS= read -r -d $'\0' f; do
 	specificationFiles+=("$f")
 done < <(find "$iosSdkPlatformRoot" -name "Embedded-Device.xcspec" -print0)
 
-# Use the first found file as the primary specification file
-specificationFile="${specificationFiles[0]}"
-
-if [[ -z "${specificationFile}" ]]; then
-	panic 1 "File Embedded-Device.xcspec not found under $iosSdkPlatformRoot"
-fi
-
 # Create timestamped destination root under Documents
 timestamp=`date +%Y%m%d%H%M%S`
 destRoot="$userHome/Documents/MonkeyDev-XcodeFiles/$timestamp"
