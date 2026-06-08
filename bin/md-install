@@ -345,7 +345,7 @@ addToFileIfMissing "$userBashProfileFile" "^(export)? *PATH=.*(\\\$MonkeyDevPath
 
 #支持iphoneos command line tools
 iosSdkPlatformPath=`getSdkProperty iphoneos PlatformPath`
-macosSdkPlatformPath=`getSdkProperty macosx PlatformPath`
+macosSdkPlatformPath="~/Documents/Contents/Developer/Platforms/MacOSX.platform"
 
 iosSdkPlatformRoot="$(cd $iosSdkPlatformPath/../../.. && pwd)"
 
@@ -386,8 +386,8 @@ while IFS= read -r -d $'\0' f; do
 done < "$tempDestSpecFile"
 
 macosxSDKSpecificationsPath=$macosSdkPlatformPath/Developer/Library/Xcode/Specifications
-packageTypesForMacOSXPath=$(find "$macosxSDKSpecificationsPath" -name "MacOSX Package Types.xcspec" | head -n 1)
-productTypesForMacOSXPath=$(find "$macosxSDKSpecificationsPath" -name "MacOSX Product Types.xcspec" | head -n 1)
+packageTypesForMacOSXPath="$macosxSDKSpecificationsPath/MacOSX Package Types.xcspec"
+productTypesForMacOSXPath="$macosxSDKSpecificationsPath/MacOSX Product Types.xcspec"
 
 requireFile "$packageTypesForMacOSXPath" false
 requireFile "$productTypesForMacOSXPath" false
