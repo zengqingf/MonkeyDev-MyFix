@@ -358,7 +358,27 @@ done < <(find "$iosSdkPlatformRoot" -name "Embedded-Device.xcspec" -print0)
 # Use the first found file as the primary specification file
 specificationFile="${specificationFiles[0]}"
 
-requireFile "$specificationFile" false
+if [[ -z "${specificationFile}" ]]; then
+	panic 1 "File Embedded-Device.xcspec not found under $iosSdkPlatformRoot"
+fi
+
+# Create timestamped destination root under Documents
+timestamp=`date +%Y%m%d%H%M%S`
+destRoot="$userHome/Documents/MonkeyDev-XcodeFiles/$timestamp"
+mkdir -p "$destRoot" || panic $? "Failed to make directory: $destRoot"
+
+# Iterate all found spec files, copy each into indexed subfolder and write path.txt
+for i in "${!specificationFiles[@]}"; do
+	src="${specificationFiles[$i]}"
+	dstDir="$destRoot/$i"
+	mkdir -p "$dstDir" || panic $? "Failed to make directory: $dstDir"
+
+	# Copy the spec file into the indexed folder
+	cp -f -- "$src" "$dstDir/" || panic $? "Failed to copy $src to $dstDir/"
+
+	# Write absolute path into path.txt
+	printf '%s\n' "$src" > "$dstDir/path.txt" || panic $? "Failed to write path.txt in $dstDir"
+done
 
 #backup
 requireBackup "$specificationFile"
